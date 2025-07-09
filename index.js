@@ -180,7 +180,7 @@ const processData = async () => {
 			continue;
 		}
 
-		const categories = event.source === 'l7ddos' ? '4,19' : '19';
+		const categories = event.source === 'l7ddos' ? '3,21' : '15,21';
 		const result = await reportIP(event, categories, GENERATE_COMMENT(event));
 
 		await logToCSV(event, result.code);
