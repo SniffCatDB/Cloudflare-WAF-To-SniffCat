@@ -127,7 +127,7 @@ const reportIP = async (event, categories, comment) => {
 			return { success: false, code: 'ALREADY_IN_BUFFER' };
 		}
 
-		logger.log(`Failed to report ${event.clientIP}; ${err.response?.data?.errors ? JSON.stringify(err.response.data.errors) : err.message}`, status === 429 ? 0 : 3);
+		logger.log(`Failed to report ${event.clientIP}; ${err.response?.data ? JSON.stringify(err.response.data) : err.message}`, status === 429 ? 0 : 3);
 		return { success: false, code: 'FAILED' };
 	}
 };
