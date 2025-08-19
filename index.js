@@ -102,7 +102,7 @@ const reportIP = async (event, categories, comment) => {
 			timestamp: event.datetime,
 		});
 
-		logger.log(`Reported ${event.clientIP} | URI: ${event.clientRequestPath} | Source: ${event.source}`, 1);
+		logger.log(`Reported ${event.clientIP} >> ${event.clientRequestPath} << ${event.source}`, 1);
 		return { success: true, code: 'REPORTED' };
 	} catch (err) {
 		const status = err.response?.status ?? 'unknown';
@@ -126,7 +126,7 @@ const reportIP = async (event, categories, comment) => {
 			return { success: false, code: 'ALREADY_IN_BUFFER' };
 		}
 
-		logger.log(`Failed to report ${event.clientIP}; ${err.response?.data?.message ? err.response.data.message : err.message}`, status === 429 ? 0 : 3);
+		logger.log(`Error    ${event.clientIP} >> ${err.response?.data?.errors ? JSON.stringify(err.response.data.errors) : err.message}`, status === 429 ? 0 : 3);
 		return { success: false, code: 'FAILED' };
 	}
 };
