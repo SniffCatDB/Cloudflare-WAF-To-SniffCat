@@ -4,12 +4,11 @@
 const { CronJob } = require('cron');
 const banner = require('./scripts/banners/cloudflare.js');
 const { repoSlug, repoUrl } = require('./scripts/repo.js');
-const { axios } = require('./scripts/services/axios.js');
+const { axiosService, axiosCloudflare } = require('./scripts/services/axios.js');
 const { refreshServerIPs, getServerIPs } = require('./scripts/services/ipFetcher.js');
 const { saveBufferToFile, loadBufferFromFile, sendBulkReport, BULK_REPORT_BUFFER } = require('./scripts/services/bulk.js');
 const PAYLOAD = require('./scripts/services/cloudflare/generateFirewallQuery.js');
 const SefinekAPI = require('./scripts/services/cloudflare/reportToSefinek.js');
-const headers = require('./scripts/headers.js');
 const { logToCSV, readReportedIPs } = require('./scripts/services/cloudflare/csv.js');
 const getFilters = require('./scripts/services/cloudflare/getFilterRules.js');
 require('./scripts/cliHelp.js');
@@ -59,7 +58,7 @@ const fetchCloudflareEvents = async whitelist => {
 
 	for (const zoneId of zoneIds) {
 		try {
-			const { data, status } = await axios.post('https://api.cloudflare.com/client/v4/graphql', PAYLOAD(1000, zoneId), headers.CLOUDFLARE);
+			const { data, status } = await axiosCloudflare.post('/graphql', PAYLOAD(1000, zoneId));
 
 			const events = data?.data?.viewer?.zones?.[0]?.firewallEventsAdaptive;
 			if (!events) throw new Error(`Failed to retrieve data from Cloudflare (status ${status}): ${JSON.stringify(data?.errors)}`);
@@ -89,21 +88,21 @@ const reportIP = async (event, categories, comment) => {
 		if (!BULK_REPORT_BUFFER.has(event.clientIP)) {
 			BULK_REPORT_BUFFER.set(event.clientIP, { categories, timestamp: event.datetime, comment });
 			await saveBufferToFile();
-			logger.log(`Queued ${event.clientIP} for bulk report (collected ${BULK_REPORT_BUFFER.size} IPs)`, 1);
+			logger.log(`Queued ${event.clientIP} for bulk report (collected ${BULK_REPORT_BUFFER.size} IPs, source: ${event.source})`, 1);
 			return { success: false, code: 'READY_FOR_BULK_REPORT' };
 		}
 		return { success: false, code: 'ALREADY_IN_BUFFER' };
 	}
 
 	try {
-		await axios.post('/report', new URLSearchParams({
+		await axiosService.post('/report', {
 			ip: event.clientIP,
 			categories,
 			comment,
 			timestamp: event.datetime,
-		}), headers.SNIFFCAT);
+		});
 
-		logger.log(`Reported ${event.clientIP}; URI: ${event.clientRequestPath}`, 1);
+		logger.log(`Reported ${event.clientIP}; URI: ${event.clientRequestPath}; Source: ${event.source}`, 1);
 		return { success: true, code: 'REPORTED' };
 	} catch (err) {
 		const status = err.response?.status ?? 'unknown';
@@ -127,7 +126,7 @@ const reportIP = async (event, categories, comment) => {
 			return { success: false, code: 'ALREADY_IN_BUFFER' };
 		}
 
-		logger.log(`Failed to report ${event.clientIP}; ${err.response?.data ? JSON.stringify(err.response.data) : err.message}`, status === 429 ? 0 : 3);
+		logger.log(`Failed to report ${event.clientIP}; ${err.response?.data?.message ? err.response.data.message : err.message}`, status === 429 ? 0 : 3);
 		return { success: false, code: 'FAILED' };
 	}
 };
