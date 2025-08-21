@@ -1,6 +1,6 @@
 {
   "name": "cf-waf-to-sniffcat",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "homepage": "https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat#readme",
   "bugs": {
     "url": "https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat/issues"
