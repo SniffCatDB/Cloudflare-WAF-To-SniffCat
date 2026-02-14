@@ -1,4 +1,11 @@
 # Cloudflare WAF to SniffCat ☁️🕵️
+[![Version](https://img.shields.io/github/package-json/v/SniffCatDB/Cloudflare-WAF-To-SniffCat?label=version)](https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat)
+[![License: GPL v3](https://img.shields.io/github/license/SniffCatDB/Cloudflare-WAF-To-SniffCat)](https://www.gnu.org/licenses/gpl-3.0)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![Last Commit](https://img.shields.io/github/last-commit/SniffCatDB/Cloudflare-WAF-To-SniffCat?label=last%20commit)](https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat/commits)
+[![Stars](https://img.shields.io/github/stars/SniffCatDB/Cloudflare-WAF-To-SniffCat)](https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat/stargazers)
+
+
 This project offers an automated script that collects and reports IP addresses that have triggered Cloudflare firewall events.
 In simple terms, it enables the reporting of incidents detected by Cloudflare WAF to the SniffCat database.
 
