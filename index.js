@@ -2,6 +2,8 @@
 //                   https://sefinek.net
 
 const { CronJob } = require('cron');
+const { MAIN, GENERATE_COMMENT } = require('./config.js');
+require('./scripts/validations/index.js')(MAIN);
 const banner = require('./scripts/banners/cloudflare.js');
 const { repoSlug, repoUrl } = require('./scripts/repo.js');
 const { axiosService, axiosCloudflare } = require('./scripts/services/axios.js');
@@ -14,7 +16,6 @@ const { logToCSV, readReportedIPs } = require('./scripts/services/cloudflare/csv
 const getFilters = require('./scripts/services/cloudflare/getFilterRules.js');
 require('./scripts/cliHelp.js');
 const logger = require('./scripts/logger.js');
-const { MAIN, GENERATE_COMMENT } = require('./config.js');
 
 const RATE_LIMIT_LOG_INTERVAL = 10 * 60 * 1000;
 const BUFFER_STATS_INTERVAL = 5 * 60 * 1000;
@@ -50,7 +51,7 @@ const checkRateLimit = async () => {
 
 const fetchCloudflareEvents = async whitelist => {
 	if (MAIN.CLOUDFLARE_ZONE_IDS && MAIN.CLOUDFLARE_ZONE_ID) {
-		logger.info('Both CLOUDFLARE_ZONE_IDS and deprecated CLOUDFLARE_ZONE_ID are defined. Using CLOUDFLARE_ZONE_IDS.');
+		logger.warn('Both CLOUDFLARE_ZONE_IDS and deprecated CLOUDFLARE_ZONE_ID are defined. Using CLOUDFLARE_ZONE_IDS.', { discord: true });
 	}
 
 	const rawZoneIds = MAIN.CLOUDFLARE_ZONE_IDS || MAIN.CLOUDFLARE_ZONE_ID;
@@ -237,6 +238,9 @@ const processData = async () => {
 	} else {
 		await require('./scripts/services/version.js');
 	}
+
+	// Fetch IPs
+	await refreshServerIPs();
 
 	// Bulk Report
 	await loadBufferFromFile();

@@ -5,9 +5,9 @@ exports.MAIN = {
 	RUN_ON_START: true, // Should the reporting function run immediately on script start?
 
 	/* --------------------------- Network --------------------------- */
-	IP_ASSIGNMENT: 'dynamic', // IP assignment type: 'static' for a fixed IP, 'dynamic' if it may change over time.
+	IP_ASSIGNMENT: 'dynamic', // 'static' for a fixed IP, 'dynamic' if it may change over time.
 	IP_REFRESH_SCHEDULE: '0 */6 * * *', // Cron schedule for checking the public IP assigned by your ISP. Used only with dynamic IPs to prevent accidental self-reporting. If IP_ASSIGNMENT is set to 'static', the script will check your IP only once.
-	IPv6_SUPPORT: true, // IPv6 support: true if the device has a globally routable address assigned by the ISP.
+	IPv6_SUPPORT: true, // true if the device has a globally routable address assigned by the ISP.
 
 	/* --------------------------- Secret keys --------------------------- */
 	CLOUDFLARE_ZONE_IDS: ['11111111111111111111111111111111', '22222222222222222222222222222222'], // You can add more zone IDs here. https://github.com/SniffCatDB/Cloudflare-WAF-To-SniffCat/tree/main?tab=readme-ov-file#cloudflare_zone_id
@@ -16,28 +16,30 @@ exports.MAIN = {
 
 	/* --------------------------- Cycles --------------------------- */
 	REPORT_SCHEDULE: '0 */2 * * *', // Cron schedule for sending reports to SniffCat.
-	IP_REPORT_COOLDOWN: 8 * 60 * 60 * 1000, // Minimum time between reports of the same IP. Must be >= 15 minutes. Do not set values like 1 hour, as it wouldn't make sense due to rate limits.
+	IP_REPORT_COOLDOWN: 8 * 60 * 60 * 1000, // Minimum time between reports of the same IP. Must be >= 20 minutes. Do not set values like 1 hour, as it wouldn't make sense due to rate limits.
 	MAX_URL_LENGTH: 850, // Maximum allowed URI length. Longer URLs will be rejected.
 	SUCCESS_COOLDOWN: 10, // Additional delay (in ms) after each successful report to avoid overloading the SniffCat API.
 	CLOUDFLARE_TIME_RANGE: 12 * 60 * 60 * 1000, // Time range for fetching Cloudflare events in milliseconds (default: 12h). Cloudflare limits time range to less than 86400s (24h) per query.
 	CLOUDFLARE_EVENTS_LIMIT: 2500, // Maximum number of events to fetch from Cloudflare per zone. Cloudflare's GraphQL API supports up to 10000. Setting a lower limit can help reduce memory usage.
-	ALLOWED_SOURCES: ['unknown', 'asn', 'country', 'ip', 'iprange', 'securitylevel', 'zonelockdown', 'waf', 'firewallrules', 'uablock', 'ratelimit', 'bic', 'hot', 'l7ddos', 'validation', 'botfight', 'apishield', 'botmanagement', 'dlp', 'firewallmanaged', 'firewallcustom', 'apishieldschemavalidation', 'apishieldtokenvalidation', 'apishieldsequencemitigation'],
+	ALLOWED_SOURCES: ['unknown', 'asn', 'country', 'ip', 'iprange', 'securitylevel', 'zonelockdown', 'waf', 'firewallrules', 'uablock', 'ratelimit', 'bic', 'hot', 'l7ddos', 'validation', 'botfight', 'apishield', 'botmanagement', 'dlp', 'firewallmanaged', 'firewallcustom', 'apishieldschemavalidation', 'apishieldtokenvalidation', 'apishieldsequencemitigation'], // Array of allowed reporting sources. Reports from sources not included in this array will be ignored. https://developers.cloudflare.com/logs/logpush/logpush-job/datasets/zone/firewall_events/#source
 
 	/* --------------------------- Automatic Updates --------------------------- */
-	AUTO_UPDATE_ENABLED: false, // True to enable auto-update via 'git pull', false to disable.
-	AUTO_UPDATE_SCHEDULE: '0 15,17,18,20 * * *', // Cron schedule for automatic script updates. Default: every day at 15:00, 17:00, 18:00, 20:00
+	AUTO_UPDATE_ENABLED: false, // Set to true to enable automatic updates via "git pull", false to disable. This option is discouraged due to potential future incompatibilities. Enable it only if you actively monitor the server and want the latest version.
+	AUTO_UPDATE_SCHEDULE: '0 15,17,18,20 * * *', // Cron schedule for automatic updates. Default: every day at 15:00, 17:00, 18:00, 20:00
 
 	/* --------------------------- Discord Webhooks --------------------------- */
 	DISCORD_WEBHOOK_ENABLED: false, // Enables sending Discord webhooks with error reports, execution status, and other events.
 	DISCORD_WEBHOOK_URL: '',
 	DISCORD_WEBHOOK_USERNAME: 'SERVER_ID', // Username shown as the message author. Use null for default. 'SERVER_ID' will resolve to this.MAIN.SERVER_ID.
+	DISCORD_USER_ID: '', // Discord User ID to ping on critical events. Leave empty to disable pinging.
 
 	/* --------------------------- Sefinek API --------------------------- */
 	SEFIN_API_REPORTING: false, // Enables reporting of IP addresses to api.sefinek.net (https://github.com/sefinek/Malicious-IP-Addresses). Requires SEFIN_API_SECRET_TOKEN.
 	SEFIN_API_SECRET_TOKEN: '',
-	SEFIN_API_REPORT_SCHEDULE: '0 */2 * * *', // CRON schedule for sending data to the Sefinek API.
+	SEFIN_API_REPORT_SCHEDULE: '0 */2 * * *', // Cron schedule for sending data to the Sefinek API.
 };
 
+// Generates a report comment. Please do not remove the source link, I would greatly appreciate it! Thank you.
 exports.GENERATE_COMMENT = ({ action, clientAsn, clientASNDescription, clientRequestHTTPProtocol, clientRequestHTTPMethodName, clientRequestHTTPHost, clientRequestPath, clientRequestQuery, datetime, rayName, ruleId, userAgent, source, clientCountryName }) => {
 	const fields = [
 		{ label: 'Action taken', value: action?.toUpperCase() },
