@@ -3,21 +3,23 @@ module.exports = {
 		name: 'cf-sniffcat',
 		script: './index.js',
 
-		// Logging settings
+		// Logging configuration
 		log_date_format: 'HH:mm:ss.SSS DD.MM.YYYY',
 		merge_logs: true,
 		log_file: '~/logs/cf-waf-to-sniffcat/combined.log',
 		out_file: '~/logs/cf-waf-to-sniffcat/out.log',
 		error_file: '~/logs/cf-waf-to-sniffcat/error.log',
 
-		// Application restart policy
+		// Application restart policy settings
 		wait_ready: true,
+		listen_timeout: 30000,
+		kill_timeout: 10000,
 		autorestart: true,
-		max_restarts: 4,
-		restart_delay: 4000,
-		min_uptime: 3000,
+		max_restarts: 10,
+		min_uptime: 30000,
+		restart_delay: 5000,
 
-		// Environment variables
+		// Environment variables configuration
 		env: {
 			NODE_ENV: 'production',
 		},
